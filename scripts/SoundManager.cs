@@ -20,6 +20,9 @@ public partial class SoundManager : Node, ISkinnable
     public static AudioStreamPlayer Song;
     public static AudioStreamPlayer MenuMusic;
 
+    public static int MapMusicBus = AudioServer.GetBusIndex("Map Music");
+    public static AudioEffectPitchShift SongPitch;
+
     public Action<Map> JukeboxPlayed;
 
     public event Action JukeboxEmpty;
@@ -51,6 +54,8 @@ public partial class SoundManager : Node, ISkinnable
 
         HitSound.MaxPolyphony = 16;
         MissSound.MaxPolyphony = 16;
+        Song.Bus = "Map Music";
+        AudioServer.AddBusEffect(MapMusicBus, SongPitch);
 
         AddChild(HitSound);
         AddChild(MissSound);
@@ -91,6 +96,15 @@ public partial class SoundManager : Node, ISkinnable
         Lobby.Instance.SpeedChanged += (speed) =>
         {
             SoundManager.Song.PitchScale = (float)speed;
+            if (SettingsManager.Instance.Settings.PitchLock)
+            {
+                AudioServer.SetBusEffectEnabled(MapMusicBus, 1, true);
+                SoundManager.SongPitch.PitchScale = 1 / SoundManager.Song.PitchScale;
+            }
+            else
+            {
+                AudioServer.SetBusEffectEnabled(MapMusicBus, 1, false);
+            }
         };
         MapManager.Selected.ValueChanged += (_, _) => RefreshMenuMusicPlayback();
 

@@ -38,6 +38,7 @@ public partial class Runner : Node3D
     private double? hitResultProgressOverride = null;
     private double[] noteTimestamps;
 
+
     [ExportCategory("Settings")]
     [Export]
     public bool NotesOnly = false;
@@ -102,6 +103,18 @@ public partial class Runner : Node3D
             {
                 SoundManager.Song.PitchScale = (float)Speed;
             }
+        }
+
+        // Pitch Lock
+
+        if (settings.PitchLock && SoundManager.Song.PitchScale != 1.0)
+        {
+            AudioServer.SetBusEffectEnabled(SoundManager.MapMusicBus, 1, true);
+            SoundManager.SongPitch.PitchScale = (1 / SoundManager.Song.PitchScale);
+        }
+        else
+        {
+            AudioServer.SetBusEffectEnabled(SoundManager.MapMusicBus, 1, false);
         }
 
         // Save replay frame
